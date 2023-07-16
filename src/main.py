@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from utils.utils import get_first_file_in_folder
 
 app = FastAPI()
 
@@ -16,6 +17,8 @@ async def get_tile(layer: str,
                    TileMatrix: int,
                    TileCol: int,
                    TileRow: int):
+    if not layer.startswith('/'):
+        layer = '/' + layer
     data = {
         'layer': layer,
         'style': style,
@@ -26,7 +29,8 @@ async def get_tile(layer: str,
         'Format': Format,
         'TileMatrix': TileMatrix,
         'TileCol': TileCol,
-        'TileRow': TileRow
+        'TileRow': TileRow,
+        'file': get_first_file_in_folder(layer, '.mbtiles')
     }
 
     return JSONResponse(content=data)
