@@ -1,12 +1,24 @@
+import traceback
+
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response, JSONResponse
 
 from utils.utils import get_first_file_in_folder
 
 app = FastAPI()
 
 
-@app.get("/wmts")
+@app.exception_handler(Exception)
+async def exception_handler(request, exc):
+    error_response = {
+        'message': str(exc),
+        'traceback': traceback.format_exc(),
+        'url': request.url._url,
+    }
+    return JSONResponse(status_code=500, content=error_response)
+
+
+@app.get("/wmts", response_class=Response)
 async def get_tile(layer: str,
                    style: str,
                    tilematrixset: str,
