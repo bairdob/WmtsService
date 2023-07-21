@@ -1,3 +1,4 @@
+import hashlib
 import traceback
 import sqlite3
 
@@ -64,4 +65,11 @@ async def get_tile(layer: str,
                 content=f'Tile: {TileMatrix}, {TileCol}, {TileRow} not found ',
                 status_code=404)
 
-    return Response(content=tile[0], media_type='image/png')
+    return Response(
+        content=tile[0],
+        media_type='image/png',
+        headers={
+            'ETag': str(hashlib.sha256(tile[0]).hexdigest()),
+            "Cache-Control": "max-age=604800"
+        }
+    )
