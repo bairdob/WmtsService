@@ -4,6 +4,8 @@ import sqlite3
 
 from fastapi import FastAPI, Request
 from fastapi.responses import Response, JSONResponse
+from fastapi.exceptions import HTTPException
+
 
 from database import AsyncSQLite
 from models import MBTiles
@@ -51,9 +53,10 @@ async def get_tile(layer: str,
     try:
         db_path = get_first_file_in_folder(layer, MBTiles.SUFFIX.value)
     except FileNotFoundError:
-        return Response(
-            content=f'File: {layer}*{MBTiles.SUFFIX.value} not found ',
-            status_code=404)
+        raise HTTPException(
+            status_code=404,
+            detail=f'File: {layer}*{MBTiles.SUFFIX.value} not found'
+        ) from None
 
     # получаем тайл из БД
     async with AsyncSQLite(db_path) as db:
@@ -61,9 +64,10 @@ async def get_tile(layer: str,
             tile = await db.get_db_data(
                 MBTiles.get_tile_query(z=TileMatrix, x=TileCol, y=TileRow))
         except sqlite3.OperationalError as e:
-            return Response(
-                content=f'Tile: {TileMatrix}, {TileCol}, {TileRow} not found ',
-                status_code=404)
+            raise HTTPException(
+                status_code=404,
+                detail=f"Tile: {TileMatrix}, {TileCol}, {TileRow} not found"
+            ) from e
 
     return Response(
         content=tile[0],
