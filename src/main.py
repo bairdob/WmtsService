@@ -50,6 +50,11 @@ async def exception_handler(request, exc):
     )
 
 
+@app.get("/ping")
+def ping():
+    return {"message": "pong"}
+
+
 @app.get("/wmts", response_class=Response)
 async def get_tile(layer: str,
                    style: str,
