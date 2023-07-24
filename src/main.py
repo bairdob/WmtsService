@@ -5,6 +5,8 @@ import sqlite3
 from fastapi import FastAPI, Request
 from fastapi.responses import Response, JSONResponse
 from fastapi.exceptions import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 from database import AsyncSQLite
@@ -12,6 +14,14 @@ from models import MBTiles
 from utils.utils import get_first_file_in_folder
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.exception_handler(Exception)
