@@ -23,6 +23,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+DECODE_FORMAT = "latin-1"
+
+
+@app.middleware("http")
+async def case_sens_middleware(request: Request, call_next):
+    """Мидлварь запросы не зависят от регистра."""
+    raw_query_str = request.scope["query_string"].decode(DECODE_FORMAT).lower()
+    request.scope["query_string"] = raw_query_str.encode(DECODE_FORMAT)
+
+    path = request.scope["path"].lower()
+    request.scope["path"] = path
+
+    response = await call_next(request)
+    return response
+
 
 @app.exception_handler(Exception)
 async def exception_handler(request, exc):
