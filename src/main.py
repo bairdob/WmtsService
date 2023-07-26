@@ -68,8 +68,8 @@ async def get_tile(layer: str,
                    tilerow: int,
                    _request: Request) -> Response:
     """Получаем тайл из БД."""
-
-    if service != 'wmts' or request != 'gettile':
+    # обязательные параметры запроса
+    if service != 'wmts' or request != 'gettile' or version != '1.0.0':
         return Response(
             content=f'Invalid request: {_request.url._url}',
             status_code=status.HTTP_400_BAD_REQUEST)
