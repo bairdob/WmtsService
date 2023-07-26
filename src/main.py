@@ -93,7 +93,7 @@ async def get_tile(layer: str,
     async with AsyncSQLite(db_path) as db:
         try:
             tile = await db.get_db_data(
-                MBTiles.get_tile_query(z=tilematrix, x=tilecol, y=tilerow))
+                MBTiles.select_tile(z=tilematrix, x=tilecol, y=tilerow))
         except sqlite3.OperationalError as e:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

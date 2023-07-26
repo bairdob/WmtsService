@@ -11,7 +11,7 @@ class MBTiles(Enum):
     SUFFIX = '.mbtiles'
 
     @staticmethod
-    def get_tile_query(z: int, x: int, y: int):
+    def select_tile(z: int, x: int, y: int):
         """
         Возвращает SQL запрос для получения тайла.
 
