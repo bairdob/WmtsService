@@ -96,7 +96,7 @@ async def get_tile(layer: str,
                 MBTiles.select_tile(z=tilematrix, x=tilecol, y=tilerow))
         except sqlite3.OperationalError as e:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Tile: {tilematrix}, {tilecol}, {tilerow} not found"
             ) from e
 
