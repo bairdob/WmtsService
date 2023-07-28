@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, JSONResponse
 
 from database import AsyncSQLite
+from middleware import LowerCaseMiddleware
 from models import MBTiles
 from utils import get_first_file_in_folder
 
@@ -20,21 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-DECODE_FORMAT = "latin-1"
-
-
-@app.middleware("http")
-async def case_sens_middleware(request: Request, call_next):
-    """Мидлварь запросы не зависят от регистра."""
-    raw_query_str = request.scope["query_string"].decode(DECODE_FORMAT).lower()
-    request.scope["query_string"] = raw_query_str.encode(DECODE_FORMAT)
-
-    path = request.scope["path"].lower()
-    request.scope["path"] = path
-
-    response = await call_next(request)
-    return response
+app.middleware("http")(LowerCaseMiddleware())
 
 
 @app.exception_handler(Exception)
