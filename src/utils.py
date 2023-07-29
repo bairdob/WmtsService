@@ -5,8 +5,8 @@ from fastapi import status
 from fastapi.exceptions import HTTPException
 
 from models.tile_operations import TileRequestParameters, TilePosition, TileAttributes, \
-    TileOperations
-from models.wmts_operations import WmtsBasicOperations, WmtsOperations
+    GetTileRequest
+from models.wmts_operations import WmtsRequestBase, RequestBase
 
 
 @lru_cache(maxsize=64)
@@ -28,7 +28,7 @@ def get_first_file_in_folder(path: str, extension: str) -> str:
     raise FileNotFoundError(f"В папке '{path}' не найден файл с расширением '{extension}'.")
 
 
-async def get_wmts_operation_request(
+async def get_request(
         layer: str,
         style: str,
         tilematrixset: str,
@@ -39,11 +39,11 @@ async def get_wmts_operation_request(
         tilematrix: str,
         tilecol: int,
         tilerow: int,
-) -> WmtsOperations:
+) -> RequestBase:
     """Возвращает класс по типу операции (request)."""
     # валидируем базовые операции
     try:
-        WmtsBasicOperations(
+        WmtsRequestBase(
             service=service,
             request=request,
             version=version,)
@@ -54,7 +54,7 @@ async def get_wmts_operation_request(
         ) from e
 
     if request == 'gettile':
-        return TileOperations(
+        return GetTileRequest(
             tilerequestparameters=TileRequestParameters(layer=layer, style=style),
             tileattributes=TileAttributes(
                 format=format,

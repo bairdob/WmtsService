@@ -3,11 +3,11 @@ from abc import ABC
 from pydantic import BaseModel, field_validator
 
 
-class WmtsOperations(ABC):
+class RequestBase(ABC):
     pass
 
 
-class WmtsBasicOperations(BaseModel, WmtsOperations):
+class WmtsRequestBase(BaseModel, RequestBase):
     """Сервисный класс WMTS. Содержит обязательные параметры запроса"""
     service: str  # сервис wmts
     request: str  # операция

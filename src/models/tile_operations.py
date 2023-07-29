@@ -1,6 +1,6 @@
 from pydantic import BaseModel, field_validator
 
-from models.wmts_operations import WmtsOperations
+from models.wmts_operations import RequestBase
 
 
 class TileRequestParameters(BaseModel):
@@ -27,6 +27,6 @@ class TileAttributes(BaseModel):
     tileposition: TilePosition  # позиция тайла
 
 
-class TileOperations(BaseModel, WmtsOperations):
+class GetTileRequest(BaseModel, RequestBase):
     tilerequestparameters: TileRequestParameters
     tileattributes: TileAttributes

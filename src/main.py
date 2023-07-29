@@ -6,10 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, JSONResponse
 
 from middleware import LowerCaseMiddleware
-from models.tile_operations import TileOperations
-from models.wmts_operations import WmtsOperations
+from models.tile_operations import GetTileRequest
+from models.wmts_operations import RequestBase
 from models.wmts_service import WmtsService
-from utils import get_wmts_operation_request
+from utils import get_request
 
 app = FastAPI()
 
@@ -42,19 +42,19 @@ def ping():
 
 
 @app.get("/wmts", response_class=Response)
-async def get_tile(operations: WmtsOperations = Depends(get_wmts_operation_request)) -> Response:
+async def get_resource(request: RequestBase = Depends(get_request)) -> Response:
     """Получаем тайл из БД."""
-    if isinstance(operations, TileOperations):
+    if isinstance(request, GetTileRequest):
         tile = await WmtsService.get_tile(
-            layer=operations.tilerequestparameters.layer,
-            tilematrix=int(operations.tileattributes.tileposition.tilematrix),
-            tilerow=operations.tileattributes.tileposition.tilerow,
-            tilecol=operations.tileattributes.tileposition.tilecol
+            layer=request.tilerequestparameters.layer,
+            tilematrix=int(request.tileattributes.tileposition.tilematrix),
+            tilerow=request.tileattributes.tileposition.tilerow,
+            tilecol=request.tileattributes.tileposition.tilecol
         )
 
         return Response(
             content=tile,
-            media_type=operations.tileattributes.format,
+            media_type=request.tileattributes.format,
             headers={
                 'ETag': str(hashlib.sha256(tile).hexdigest()),
                 "Cache-Control": "max-age=604800"
