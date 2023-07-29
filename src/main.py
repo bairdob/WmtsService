@@ -1,17 +1,15 @@
 import hashlib
-import sqlite3
 import traceback
 
 from fastapi import FastAPI, status, Depends
-from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, JSONResponse
 
-from database import AsyncSQLite
 from middleware import LowerCaseMiddleware
-from models.mbtiles import MBTiles
+from models.tile_operations import TileOperations
 from models.wmts_operations import WmtsOperations
-from utils import get_first_file_in_folder, get_wmts_operation_request
+from models.wmts_service import WmtsService
+from utils import get_wmts_operation_request
 
 app = FastAPI()
 
@@ -46,43 +44,19 @@ def ping():
 @app.get("/wmts", response_class=Response)
 async def get_tile(operations: WmtsOperations = Depends(get_wmts_operation_request)) -> Response:
     """Получаем тайл из БД."""
-    # обязательные параметры запроса
-    if service != 'wmts' or request != 'gettile' or version != '1.0.0':
+    if isinstance(operations, TileOperations):
+        tile = await WmtsService.get_tile(
+            layer=operations.tilerequestparameters.layer,
+            tilematrix=int(operations.tileattributes.tileposition.tilematrix),
+            tilerow=operations.tileattributes.tileposition.tilerow,
+            tilecol=operations.tileattributes.tileposition.tilecol
+        )
+
         return Response(
-            content=f'Invalid request: {_request.url._url}',
-            status_code=status.HTTP_400_BAD_REQUEST)
-
-    if not layer.startswith('/'):
-        layer = '/' + layer
-
-    # инвертируем y
-    tilerow = (1 << tilematrix) - tilerow - 1
-
-    # получаем путь к БД из параметра layer
-    try:
-        db_path = get_first_file_in_folder(layer, MBTiles.SUFFIX.value)
-    except FileNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'File: {layer}*{MBTiles.SUFFIX.value} not found'
-        ) from None
-
-    # получаем тайл из БД
-    async with AsyncSQLite(db_path) as db:
-        try:
-            tile = await db.get_db_data(
-                MBTiles.select_tile(z=tilematrix, x=tilecol, y=tilerow))
-        except sqlite3.OperationalError as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Tile: {tilematrix}, {tilecol}, {tilerow} not found"
-            ) from e
-
-    return Response(
-        content=tile[0],
-        media_type='image/png',
-        headers={
-            'ETag': str(hashlib.sha256(tile[0]).hexdigest()),
-            "Cache-Control": "max-age=604800"
-        }
-    )
+            content=tile,
+            media_type=operations.tileattributes.format,
+            headers={
+                'ETag': str(hashlib.sha256(tile).hexdigest()),
+                "Cache-Control": "max-age=604800"
+            }
+        )
