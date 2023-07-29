@@ -2,7 +2,7 @@ import hashlib
 import sqlite3
 import traceback
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, status, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, JSONResponse
@@ -10,6 +10,8 @@ from fastapi.responses import Response, JSONResponse
 from database import AsyncSQLite
 from middleware import LowerCaseMiddleware
 from models.mbtiles import MBTiles
+from models.wmts_operations import WmtsOperations
+from utils import get_first_file_in_folder, get_wmts_operation_request
 
 app = FastAPI()
 
@@ -42,17 +44,7 @@ def ping():
 
 
 @app.get("/wmts", response_class=Response)
-async def get_tile(layer: str,
-                   style: str,
-                   tilematrixset: str,
-                   service: str,
-                   request: str,
-                   version: str,
-                   format: str,
-                   tilematrix: int,
-                   tilecol: int,
-                   tilerow: int,
-                   _request: Request) -> Response:
+async def get_tile(operations: WmtsOperations = Depends(get_wmts_operation_request)) -> Response:
     """Получаем тайл из БД."""
     # обязательные параметры запроса
     if service != 'wmts' or request != 'gettile' or version != '1.0.0':
