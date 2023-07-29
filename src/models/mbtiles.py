@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class MBTiles(Enum):
-    """Сервисный класс MBtiles"""
+    """Сервисный класс MBtiles."""
     DEFAULT_TABLE_NAME = 'tiles'
     TILE_COLUMN = 'tile_data'
     Z_COLUMN = 'zoom_level'

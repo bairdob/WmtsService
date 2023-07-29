@@ -9,8 +9,7 @@ from fastapi.responses import Response, JSONResponse
 
 from database import AsyncSQLite
 from middleware import LowerCaseMiddleware
-from models import MBTiles
-from utils import get_first_file_in_folder
+from models.mbtiles import MBTiles
 
 app = FastAPI()
 
