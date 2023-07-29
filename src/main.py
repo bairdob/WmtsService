@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, JSONResponse
 
 from middleware import LowerCaseMiddleware
-from models.tile_operations import GetTileRequest
-from models.wmts_operations import RequestBase
+from models.get_tile_request import GetTileRequest
+from models.wmts_request_base import RequestBase
 from models.wmts_service import WmtsService
 from utils import get_request
 

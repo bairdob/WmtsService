@@ -4,9 +4,9 @@ from pathlib import Path
 from fastapi import status
 from fastapi.exceptions import HTTPException
 
-from models.tile_operations import TileRequestParameters, TilePosition, TileAttributes, \
+from models.get_tile_request import TileRequestParameters, TilePosition, TileAttributes, \
     GetTileRequest
-from models.wmts_operations import WmtsRequestBase, RequestBase
+from models.wmts_request_base import WmtsRequestBase, RequestBase
 
 
 @lru_cache(maxsize=64)
