@@ -43,7 +43,7 @@ def ping():
 
 @app.get("/wmts", response_class=Response)
 async def get_resource(request: RequestBase = Depends(get_request)) -> Response:
-    """Получаем тайл из БД."""
+    """Возвращает ответ по типу запроса Wmts сервиса."""
     if isinstance(request, GetTileRequest):
         tile = await WmtsService.get_tile(
             layer=request.tilerequestparameters.layer,
@@ -60,3 +60,6 @@ async def get_resource(request: RequestBase = Depends(get_request)) -> Response:
                 "Cache-Control": "max-age=604800"
             }
         )
+    else:
+        # TODO: заглушка для getCapabilities, getFeatureInfo
+        pass
